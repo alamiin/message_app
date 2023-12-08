@@ -1,0 +1,20 @@
+
+class Message{
+  String? message;
+  String? room;
+  String? userId;
+  bool? isSender;
+  Message({required this.message, required this.isSender});
+
+  Message.fromJson(dynamic json) {
+    message = json['message'];
+    room = json['room'];
+    userId = json['user_id'];
+    if(json['user_id'] == "user100"){
+      isSender = true;
+    }else{
+      isSender = false;
+    }
+  }
+
+}
