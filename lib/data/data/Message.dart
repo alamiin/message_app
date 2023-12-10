@@ -1,4 +1,6 @@
 
+import '../../utils/user_helper.dart';
+
 class Message{
   String? message;
   String? room;
@@ -10,11 +12,7 @@ class Message{
     message = json['message'];
     room = json['room'];
     userId = json['user_id'];
-    if(json['user_id'] == "user100"){
-      isSender = true;
-    }else{
-      isSender = false;
-    }
+    isSender = UserHelper.isSameUser(json['user_id']);
   }
 
 }

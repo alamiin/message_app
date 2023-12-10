@@ -1,19 +1,25 @@
 
 import 'package:flutter/cupertino.dart';
-import 'package:message_app/utils/utils.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-
+import 'package:message_app/utils/user_helper.dart';
+import 'dart:io' show Platform;
 import '../data/data/Message.dart';
+import '../data/repository/message_repo.dart';
 
 class MessageProvider extends ChangeNotifier{
 
-  // here we create a variable to track a new item when added. So we can easily handle typing animation.
+  final MessageRepo messageRepo;
+
+  MessageProvider({required this.messageRepo});
+
+
+
+  /// here we create a variable to track a new item when added. So we can easily handle typing animation.
   int len = 0;
 
   List<Message> allMessage = [];
   List<Message> reverseMessage = [];
 
-  // setting message
+  /// setting message
   void setMessage(Message message){
     allMessage.add(message);
     reverseMessage = allMessage.reversed.toList();
@@ -21,7 +27,7 @@ class MessageProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  // here we are updating length when ui render is done.
+  /// here we are updating length when ui render is done.
   void updateLen(int l){
     len = l;
     notifyListeners();
@@ -29,9 +35,9 @@ class MessageProvider extends ChangeNotifier{
 
   List<String> messageList = [];
 
-  String roomId = "room123";
-  String userId = "user100";
-  late IO.Socket socket;
+
+
+
 
   @override
   void dispose() {
@@ -39,53 +45,26 @@ class MessageProvider extends ChangeNotifier{
     super.dispose();
   }
 
+  String roomId = "room123";
+  String userId =  UserHelper.getUser();
 
   void initSocket() {
-    socket = IO.io(appBaseUrl, <String, dynamic>{
-      'autoConnect': false,
-      'transports': ['websocket'],
-    });
-    socket.connect();
-    socket.onConnect((_) {
-      print('Connection established');
-      connectRoom();
-    });
-    socket.onDisconnect((_) => print('Connection Disconnection'));
-    socket.onConnectError((err) => print(err));
-    socket.onError((err) => print(err));
-
-    socket.on('message', (newMessage) {
-      var message = Message.fromJson(newMessage);
-      setMessage(message);
-    });
+    messageRepo.initSocket(
+      connectRoom: connectRoom,
+      dataUpdate: setMessage
+    );
   }
 
-
   void disposeSocket(){
-    Map leaveRoom = {
-      "room": roomId,
-      "user_id": userId
-    };
-    socket.emit('leave', leaveRoom);
-    socket.disconnect();
-    socket.dispose();
+    messageRepo.disposeSocket(userId, roomId);
   }
 
   void connectRoom(){
-    Map joinRoom = {
-      "room": roomId,
-      "user_id": userId
-    };
-    socket.emit('join', joinRoom);
+    messageRepo.connectRoom(userId, roomId);
   }
 
   void sendMessage(String message){
-    Map messageMap = {
-      "room": roomId,
-      "user_id": userId,
-      "message": message
-    };
-    socket.emit('message', messageMap);
+    messageRepo.sendMessage(message, userId, roomId);
   }
 
 

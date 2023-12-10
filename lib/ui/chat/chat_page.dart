@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:message_app/provider/message_provider.dart';
+import 'package:message_app/ui/chat/widget/chat_box_widget.dart';
 import 'package:message_app/ui/chat/widget/widget.dart';
 import 'package:provider/provider.dart';
 import '../../utils/colors.dart';
@@ -47,21 +48,21 @@ class _ChatPageState extends State<ChatPage> {
           body: Container(
             child: Column(
               children: [
-                Container(
-                  height: 50,
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    children: [
-                      InkWell(
-                        onTap: () => Navigator.of(context).pop(true),
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          child: Icon(Icons.arrow_back,color: Colors.white, size: 30,),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                // Container(
+                //   height: 50,
+                //   width: MediaQuery.of(context).size.width,
+                //   child: Row(
+                //     children: [
+                //       InkWell(
+                //         onTap: () => Navigator.of(context).pop(true),
+                //         child: Container(
+                //           padding: EdgeInsets.all(10),
+                //           child: Icon(Icons.arrow_back,color: Colors.white, size: 30,),
+                //         ),
+                //       )
+                //     ],
+                //   ),
+                // ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -72,52 +73,10 @@ class _ChatPageState extends State<ChatPage> {
                           controller: _controller,
                           itemCount: provider.reverseMessage.length,
                           itemBuilder: (context, index) {
-                            return !provider.reverseMessage[index].isSender!
-                                ? Container(
-                              alignment: Alignment.centerLeft,
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: size.width * 0.85 - 43.0),
-                                child: Container(
-                                  margin: const EdgeInsets.all(15.0),
-                                  padding: const EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white24),
-                                    color : Colors.white12,
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: autoTyper(provider.reverseMessage, index),
-                                ),
-                              ),
-                            )
-                                : Container(
-                              alignment: Alignment.centerRight,
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: size.width * 0.85 - 43.0),
-                                child: Container(
-                                  margin: const EdgeInsets.all(15.0),
-                                  padding: const EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white24),
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        AppColor.senderBackground1,
-                                        AppColor.senderBackground2
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      // stops: [0.5, 0.5],
-                                      // tileMode: TileMode.clamp,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: Text(
-                                    provider.reverseMessage[index].message!,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16
-                                    ),),
-                                ),
-                              ),
+                            return ChatBoxWidget(
+                                index: index,
+                                isSender: provider.reverseMessage[index].isSender!,
+                                userName: provider.reverseMessage[index].userId!
                             );
                           },
                         );
@@ -126,15 +85,14 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ),
                 Container(
-                  height: 85,
                   color: AppColor.systemNavigationBarColor,
-                  padding: const EdgeInsets.symmetric(vertical: 3.0),
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(width: 16.0),
+                      const SizedBox(width: 10.0),
                       Expanded(
                         child: Container(
-                          height: 55.0,
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8.0),
@@ -145,59 +103,62 @@ class _ChatPageState extends State<ChatPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                child: SizedBox(
-                                  height: 40,
-                                  child: TextField(
-                                    controller: messageController,
-                                    style: const TextStyle(fontSize: 16.0, color: Colors.white70),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Ask me anything...',
-                                      hintStyle: TextStyle(fontSize: 14.0),
-                                      contentPadding:
-                                      EdgeInsets.fromLTRB(12.0, 8.0, 8.0, 12.0),
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                    ),
+                                child: TextField(
+                                  keyboardType: TextInputType.multiline,
+                                  minLines: 1,
+                                  maxLines: 5,
+                                  controller: messageController,
+                                  style: const TextStyle(fontSize: 16.0, color: Colors.white70),
+                                  decoration: const InputDecoration(
+                                    hintText: 'Ask me anything...',
+                                    hintStyle: TextStyle(fontSize: 14.0),
+                                    contentPadding:
+                                    EdgeInsets.fromLTRB(12.0, 8.0, 8.0, 12.0),
+                                    border: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    errorBorder: InputBorder.none,
+                                    disabledBorder: InputBorder.none,
                                   ),
                                 ),
                               ),
-                              Container(
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      height: 30,
-                                      width: 30,
-                                      child: IconButton(
-                                        padding: EdgeInsets.all(4),
-                                        icon: const Icon(Icons.filter_center_focus, color: Colors.white, size: 25,),
-                                        onPressed: () => print('Mic Pressed'),
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 30,
-                                      width: 30,
-                                      child: IconButton(
-                                        padding: EdgeInsets.all(4),
-                                        icon: const Icon(Icons.mic, color: Colors.white, ),
-                                        onPressed: () => print('Mic Pressed'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                              // Container(
+                              //   child: Row(
+                              //     children: [
+                              //       Container(
+                              //         height: 30,
+                              //         width: 30,
+                              //         child: IconButton(
+                              //           padding: EdgeInsets.all(4),
+                              //           icon: const Icon(Icons.filter_center_focus, color: Colors.white, size: 25,),
+                              //           onPressed: () => print('Mic Pressed'),
+                              //         ),
+                              //       ),
+                              //       Container(
+                              //         height: 30,
+                              //         width: 30,
+                              //         child: IconButton(
+                              //           padding: EdgeInsets.all(4),
+                              //           icon: const Icon(Icons.mic, color: Colors.white, ),
+                              //           onPressed: () => print('Mic Pressed'),
+                              //         ),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // )
                             ],
                           ),
                         ),
                       ),
                       const SizedBox(width: 10.0),
-
                       InkWell(
-                        child: const Icon(
-                          Icons.send,
-                          color: Colors.white,
+                        child:  Container(
+                          margin: const EdgeInsets.only(top: 2),
+                          padding: const EdgeInsets.all(8),
+                          child:const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                          ),
                         ),
                         onTap: () {
                           String message = messageController.text;
